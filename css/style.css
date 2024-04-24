@@ -28,7 +28,16 @@ html {
 body {
   margin: 0;
 }
+.location-pin {
+  display: block; /* Display as its own line */
+  margin-top: 10px; /* Add spacing above */
+  text-align: center;  
+}
 
+.location-pin img {
+  width: 30px; /* Adjust width as needed */
+  height: 30px; /* Adjust height as needed */
+}
 article,
 aside,
 details,
