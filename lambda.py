@@ -13,6 +13,7 @@ hotels = ['Harmony Peaks Bora Bora', 'Harmony Peaks Imperial', 'Harmony Peaks De
 room_types = ['Standard room', 'Deluxe room', 'Suite', 'Penthouse', 'Bungalow']
 
 def validate_phone_number(phone):
+    # Validate phone number using a regex pattern
     phone_pattern = r"^\+[\d]{1,14}$"
     return re.match(phone_pattern, phone) is not None
 
@@ -110,10 +111,11 @@ def validate_reservation(slots):
             'message': 'Invalid phone number format. Please provide a valid phone number starting with a "+" sign.'
         }
 
-    # Valid reservation
+    # If all validations pass
     return {'isValid': True}
 
 def save_reservation_to_dynamodb(slots):
+    # Save the reservation details to DynamoDB
     table.put_item(
         Item={
             'Id': str(uuid.uuid4()),  # Unique ID for each reservation
@@ -131,13 +133,17 @@ def save_reservation_to_dynamodb(slots):
 def lambda_handler(event, context):
     print(event)
 
+    # Extract slots and intent name from the event
     slots = event['sessionState']['intent']['slots']
     intent = event['sessionState']['intent']['name']
 
+    # Validate reservation details
     reservation_validation_result = validate_reservation(slots)
 
+    # Handle dialog flow
     if event['invocationSource'] == 'DialogCodeHook':
         if reservation_validation_result['isValid']:
+            # Delegate dialog back to Lex
             response = {
                 "sessionState": {
                     "dialogAction": {
@@ -150,6 +156,7 @@ def lambda_handler(event, context):
                 }
             }
         else:
+            # Elicit the invalid slot from the user
             response = {
                 "sessionState": {
                     "dialogAction": {
@@ -169,6 +176,7 @@ def lambda_handler(event, context):
                 ]
             }
 
+            # Provide options if the invalid slot is Hotel or Rooms
             if reservation_validation_result['invalidSlot'] == 'Hotel':
                 response_card_sub_title = "Choose a hotel from the options below:"
                 response_card_buttons = [
@@ -201,6 +209,7 @@ def lambda_handler(event, context):
                     }
                 })
 
+    # Handle fulfillment
     elif event['invocationSource'] == 'FulfillmentCodeHook':
         if reservation_validation_result['isValid']:
             save_reservation_to_dynamodb(slots)
@@ -227,6 +236,7 @@ def lambda_handler(event, context):
                 }
             }
         else:
+            # Handle unexpected failure
             response = {
                 "sessionState": {
                     "dialogAction": {
