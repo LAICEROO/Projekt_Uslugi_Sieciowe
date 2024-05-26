@@ -8,3 +8,4 @@ The Harmony Peaks Chatbot Project involves creating an AWS Lambda function and a
 2. Validation: The bot sends the details to the Lambda function for validation.
 3. Response: Based on the validation, the bot either confirms the reservation or asks for corrected details.
 4. Storage: Valid reservation details are stored in a DynamoDB table.
+
